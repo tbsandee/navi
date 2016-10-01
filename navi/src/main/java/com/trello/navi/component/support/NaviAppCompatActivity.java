@@ -17,7 +17,7 @@ public class NaviAppCompatActivity extends AppCompatActivity implements NaviComp
 
   private final NaviEmitter base = NaviEmitter.createActivityEmitter();
 
-  @Override public final boolean handlesEvents(Event... events) {
+  @Override public final boolean handlesEvents(Event<?>... events) {
     return base.handlesEvents(events);
   }
 

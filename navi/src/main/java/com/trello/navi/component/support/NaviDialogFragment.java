@@ -22,7 +22,7 @@ public class NaviDialogFragment extends DialogFragment implements NaviComponent 
 
   private final NaviEmitter base = NaviEmitter.createFragmentEmitter();
 
-  @Override public final boolean handlesEvents(Event... events) {
+  @Override public final boolean handlesEvents(Event<?>... events) {
     return base.handlesEvents(events);
   }
 
@@ -34,6 +34,7 @@ public class NaviDialogFragment extends DialogFragment implements NaviComponent 
     base.removeListener(listener);
   }
 
+  @SuppressWarnings("deprecation")
   @Override @CallSuper public void onAttach(Activity activity) {
     super.onAttach(activity);
     base.onAttach(activity);

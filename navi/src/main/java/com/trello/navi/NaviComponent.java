@@ -13,7 +13,7 @@ public interface NaviComponent {
    * @param events the events to check
    * @return true if all events can be handled
    */
-  boolean handlesEvents(Event... events);
+  boolean handlesEvents(Event<?>... events);
 
   /**
    * Adds a listener to this component.

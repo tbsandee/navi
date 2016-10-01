@@ -38,10 +38,10 @@ public final class NaviEmitter implements NaviComponent {
 
   private final Set<Event<?>> handledEvents;
 
-  private final Map<Event<?>, List<Listener>> listenerMap;
+  private final Map<Event<?>, List<Listener<?>>> listenerMap;
 
   // Only used for fast removal of listeners
-  private final Map<Listener, Event<?>> eventMap;
+  private final Map<Listener<?>, Event<?>> eventMap;
 
   public NaviEmitter(@NonNull Collection<Event<?>> handledEvents) {
     this.handledEvents = Collections.unmodifiableSet(new HashSet<>(handledEvents));
@@ -57,9 +57,9 @@ public final class NaviEmitter implements NaviComponent {
     return new NaviEmitter(HandledEvents.FRAGMENT_EVENTS);
   }
 
-  @Override public final boolean handlesEvents(Event... events) {
+  @Override public final boolean handlesEvents(Event<?>... events) {
     for (int a = 0; a < events.length; a++) {
-      Event event = events[a];
+      Event<?> event = events[a];
       if (event != Event.ALL && !handledEvents.contains(event)) {
         return false;
       }
@@ -76,7 +76,7 @@ public final class NaviEmitter implements NaviComponent {
     // Check that we're not adding the same listener in multiple places
     // For the same event, it's idempotent; for different events, it's an error
     if (eventMap.containsKey(listener)) {
-      final Event otherEvent = eventMap.get(listener);
+      final Event<?> otherEvent = eventMap.get(listener);
       if (!event.equals(otherEvent)) {
         throw new IllegalStateException(
             "Cannot use the same listener for two events! e1: " + event + " e2: " + otherEvent);
@@ -87,15 +87,15 @@ public final class NaviEmitter implements NaviComponent {
     eventMap.put(listener, event);
 
     if (!listenerMap.containsKey(event)) {
-      listenerMap.put(event, new CopyOnWriteArrayList<Listener>());
+      listenerMap.put(event, new CopyOnWriteArrayList<Listener<?>>());
     }
 
-    List<Listener> listeners = listenerMap.get(event);
+    List<Listener<?>> listeners = listenerMap.get(event);
     listeners.add(listener);
   }
 
   @Override public final <T> void removeListener(Listener<T> listener) {
-    final Event event = eventMap.remove(listener);
+    final Event<?> event = eventMap.remove(listener);
     if (event != null && listenerMap.containsKey(event)) {
       listenerMap.get(event).remove(listener);
     }
@@ -108,12 +108,12 @@ public final class NaviEmitter implements NaviComponent {
   private <T> void emitEvent(Event<T> event, T data) {
     // We gather listener iterators  all at once so adding/removing listeners during emission
     // doesn't change the listener list.
-    final List<Listener> listeners = listenerMap.get(event);
-    final Iterator<Listener> listenersIterator =
+    final List<Listener<?>> listeners = listenerMap.get(event);
+    final Iterator<Listener<?>> listenersIterator =
         listeners != null ? listeners.listIterator() : null;
 
-    final List<Listener> allListeners = listenerMap.get(Event.ALL);
-    final Iterator<Listener> allListenersIterator =
+    final List<Listener<?>> allListeners = listenerMap.get(Event.ALL);
+    final Iterator<Listener<?>> allListenersIterator =
         allListeners != null ? allListeners.iterator() : null;
 
     if (allListenersIterator != null) {
